@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Backgammon King</string>
+    <string name="app_name">Royal Board 3D</string>
+    <string name="google_server_client_id" translatable="false"></string>
 </resources>

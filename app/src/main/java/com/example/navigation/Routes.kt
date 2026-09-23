@@ -10,4 +10,6 @@ object Routes {
     const val FRIENDS = "friends"
     const val SETTINGS = "settings"
     const val DOMINO = "domino"
+    const val CHESS = "chess"
+    const val SHOP = "shop"
 }

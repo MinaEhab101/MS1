@@ -2,6 +2,7 @@ package com.example.ui.screens.friends
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,6 +57,7 @@ import com.example.firebase.FirestoreRepository
 import com.example.game.GameMode
 import com.example.ui.theme.AccentGreen
 import com.example.ui.theme.BoardWoodDark
+import com.example.ui.theme.BoardWoodMedium
 import com.example.ui.theme.CardBorder
 import com.example.ui.theme.CardDark
 import com.example.ui.theme.GoldDark
@@ -77,12 +79,14 @@ fun FriendsScreen(
     var showAddFriendDialog by remember { mutableStateOf(false) }
     var newFriendName by remember { mutableStateOf("") }
 
+    var selectedFriendForChallenge by remember { mutableStateOf<Friend?>(null) }
+
     val avatars = listOf("🦁", "🦅", "👑", "🎲", "⚔️")
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Friends & Challenges", color = GoldSecondary, fontWeight = FontWeight.Bold) },
+                title = { Text("الأصدقاء والتحديات (Friends)", color = GoldSecondary, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack, modifier = Modifier.testTag("friends_back_button")) {
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimary)
@@ -162,15 +166,14 @@ fun FriendsScreen(
                         // Challenge Button
                         Button(
                             onClick = {
-                                val roomCode = (1..6).map { "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".random() }.joinToString("")
-                                onStartGame(GameMode.PrivateRoom(roomCode, true))
+                                selectedFriendForChallenge = friend
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary, contentColor = BoardWoodDark),
                             shape = RoundedCornerShape(10.dp)
                         ) {
                             Icon(imageVector = Icons.Default.SportsEsports, contentDescription = "Challenge", modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Challenge", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            Text("تحدي", fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         }
                     }
                 }
@@ -178,18 +181,126 @@ fun FriendsScreen(
         }
     }
 
+    // Challenge Game Selection Dialog (Chess / Domino / Backgammon)
+    selectedFriendForChallenge?.let { targetFriend ->
+        AlertDialog(
+            onDismissRequest = { selectedFriendForChallenge = null },
+            title = {
+                Text(
+                    text = "تحدي ${targetFriend.name}",
+                    fontWeight = FontWeight.Bold,
+                    color = GoldSecondary,
+                    fontSize = 17.sp
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        text = "اختر اللعبة لإنشاء غرفة دعوة خاصة:",
+                        color = TextSecondary,
+                        fontSize = 13.sp
+                    )
+
+                    // 1. Chess
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val roomCode = (1..6).map { "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".random() }.joinToString("")
+                                selectedFriendForChallenge = null
+                                onStartGame(GameMode.PrivateRoom("CHESS-$roomCode", true))
+                            },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardDark),
+                        border = CardDefaults.outlinedCardBorder().copy(brush = Brush.horizontalGradient(listOf(Color(0xFF512DA8), GoldDark)))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text("♟️", fontSize = 22.sp)
+                            Column {
+                                Text("الشطرنج 3D (Chess)", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text("تحدي ذكاء وتكتيك بقواعد FIDE", color = TextMuted, fontSize = 10.sp)
+                            }
+                        }
+                    }
+
+                    // 2. Domino
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val roomCode = (1..6).map { "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".random() }.joinToString("")
+                                selectedFriendForChallenge = null
+                                onStartGame(GameMode.PrivateRoom("DOMINO-$roomCode", true))
+                            },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardDark),
+                        border = CardDefaults.outlinedCardBorder().copy(brush = Brush.horizontalGradient(listOf(Color(0xFF2E7D32), GoldDark)))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text("🁫", fontSize = 22.sp)
+                            Column {
+                                Text("الدومينو 3D (Domino)", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text("لعبة الأحجار العاجية الكلاسيكية", color = TextMuted, fontSize = 10.sp)
+                            }
+                        }
+                    }
+
+                    // 3. Backgammon
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val roomCode = (1..6).map { "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".random() }.joinToString("")
+                                selectedFriendForChallenge = null
+                                onStartGame(GameMode.PrivateRoom("BG-$roomCode", true))
+                            },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardDark),
+                        border = CardDefaults.outlinedCardBorder().copy(brush = Brush.horizontalGradient(listOf(Color(0xFF8D532B), GoldDark)))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text("🎲", fontSize = 22.sp)
+                            Column {
+                                Text("طاولة الزهر 3D (Backgammon)", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text("طاولة ونرد فيزيائي ثلاثي الأبعاد", color = TextMuted, fontSize = 10.sp)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { selectedFriendForChallenge = null }) {
+                    Text("إلغاء", color = TextSecondary)
+                }
+            }
+        )
+    }
+
     if (showAddFriendDialog) {
         AlertDialog(
             onDismissRequest = { showAddFriendDialog = false },
-            title = { Text("Add Friend", fontWeight = FontWeight.Bold, color = GoldSecondary) },
+            title = { Text("إضافة صديق جديد", fontWeight = FontWeight.Bold, color = GoldSecondary) },
             text = {
                 Column {
-                    Text("Enter player display name or friend code:", color = TextSecondary, fontSize = 13.sp)
+                    Text("أدخل اسم اللاعب أو كود الصديق للبحث عنه:", color = TextSecondary, fontSize = 13.sp)
                     Spacer(modifier = Modifier.height(10.dp))
                     OutlinedTextField(
                         value = newFriendName,
                         onValueChange = { newFriendName = it },
-                        label = { Text("Friend Name") },
+                        label = { Text("اسم الصديق") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -213,12 +324,12 @@ fun FriendsScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary, contentColor = BoardWoodDark)
                 ) {
-                    Text("Add Friend")
+                    Text("إضافة")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showAddFriendDialog = false }) {
-                    Text("Cancel", color = TextSecondary)
+                    Text("إلغاء", color = TextSecondary)
                 }
             }
         )

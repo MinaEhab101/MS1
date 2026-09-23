@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Backgammon King"
+rootProject.name = "Royal Board 3D"
 
 include(":app")

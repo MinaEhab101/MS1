@@ -1,8 +1,5 @@
 package com.example.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.MeetingRoom
@@ -27,7 +23,6 @@ import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.SmartToy
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -62,18 +57,20 @@ import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 
 enum class RoyalGameModule {
-    BACKGAMMON,
-    DOMINOES
+    CHESS,
+    DOMINOES,
+    BACKGAMMON
 }
 
 @Composable
 fun UnifiedGameSelectionModal(
     isOpen: Boolean,
-    currentModule: RoyalGameModule,
+    currentModule: RoyalGameModule = RoyalGameModule.CHESS,
     userProfile: UserProfile?,
     onDismiss: () -> Unit,
-    onSelectBackgammon: () -> Unit,
-    onSelectDominoes: () -> Unit,
+    onSelectChess: () -> Unit = {},
+    onSelectDominoes: () -> Unit = {},
+    onSelectBackgammon: () -> Unit = {},
     onSelectGameMode: (module: RoyalGameModule, modeIndex: Int) -> Unit = { _, _ -> }
 ) {
     if (!isOpen) return
@@ -103,13 +100,13 @@ fun UnifiedGameSelectionModal(
                         Spacer(modifier = Modifier.width(6.dp))
                         Column {
                             Text(
-                                text = "صالة الألعاب الملكية",
+                                text = "صالة الألعاب الثلاثية 3D",
                                 color = GoldSecondary,
-                                fontSize = 17.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Black
                             )
                             Text(
-                                text = "Royal Games Selection Lounge",
+                                text = "Royal 3D Board Game Suite",
                                 color = TextMuted,
                                 fontSize = 10.sp
                             )
@@ -132,7 +129,7 @@ fun UnifiedGameSelectionModal(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // VIP User Bar
                 Row(
@@ -141,12 +138,12 @@ fun UnifiedGameSelectionModal(
                         .clip(RoundedCornerShape(12.dp))
                         .background(CardDark)
                         .border(1.dp, GoldDark, RoundedCornerShape(12.dp))
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "👤", fontSize = 16.sp)
+                        Text(text = "👤", fontSize = 14.sp)
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = userProfile?.username ?: "Player",
@@ -161,11 +158,11 @@ fun UnifiedGameSelectionModal(
                             imageVector = Icons.Default.MonetizationOn,
                             contentDescription = "Coins",
                             tint = GoldPrimary,
-                            modifier = Modifier.size(15.dp)
+                            modifier = Modifier.size(14.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "${userProfile?.coins ?: 1000} Coins",
+                            text = "${userProfile?.coins ?: 1000}",
                             color = GoldPrimary,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.ExtraBold
@@ -173,75 +170,94 @@ fun UnifiedGameSelectionModal(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Module Segmented Switcher (Backgammon vs Dominoes)
+                // 3-way Module Segmented Switcher (Chess, Domino, Backgammon)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(14.dp))
                         .background(Color.Black.copy(alpha = 0.5f))
                         .border(1.dp, CardBorder, RoundedCornerShape(14.dp))
-                        .padding(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        .padding(3.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Backgammon Tab
-                    val isBgSelected = (activeTab == RoyalGameModule.BACKGAMMON)
+                    // Chess Tab
+                    val isChess = (activeTab == RoyalGameModule.CHESS)
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(10.dp))
                             .then(
-                                if (isBgSelected) Modifier.background(Brush.horizontalGradient(listOf(Color(0xFF5A2A12), BoardWoodMedium)))
+                                if (isChess) Modifier.background(Brush.horizontalGradient(listOf(Color(0xFF2C2442), Color(0xFF4527A0))))
                                 else Modifier.background(Color.Transparent)
                             )
-                            .border(
-                                1.dp,
-                                if (isBgSelected) GoldPrimary else Color.Transparent,
-                                RoundedCornerShape(10.dp)
-                            )
-                            .clickable { activeTab = RoyalGameModule.BACKGAMMON }
-                            .padding(vertical = 10.dp),
+                            .border(1.dp, if (isChess) GoldPrimary else Color.Transparent, RoundedCornerShape(10.dp))
+                            .clickable { activeTab = RoyalGameModule.CHESS }
+                            .padding(vertical = 8.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "🎲", fontSize = 16.sp)
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(text = "♟️", fontSize = 13.sp)
+                            Spacer(modifier = Modifier.width(3.dp))
                             Text(
-                                text = "طاولة الزهر",
-                                color = if (isBgSelected) GoldSecondary else TextMuted,
-                                fontSize = 13.sp,
+                                text = "شطرنج",
+                                color = if (isChess) GoldSecondary else TextMuted,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                     }
 
                     // Dominoes Tab
-                    val isDominoSelected = (activeTab == RoyalGameModule.DOMINOES)
+                    val isDomino = (activeTab == RoyalGameModule.DOMINOES)
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(10.dp))
                             .then(
-                                if (isDominoSelected) Modifier.background(Brush.horizontalGradient(listOf(Color(0xFF1B5E20), Color(0xFF2E7D32))))
+                                if (isDomino) Modifier.background(Brush.horizontalGradient(listOf(Color(0xFF1B5E20), Color(0xFF2E7D32))))
                                 else Modifier.background(Color.Transparent)
                             )
-                            .border(
-                                1.dp,
-                                if (isDominoSelected) GoldPrimary else Color.Transparent,
-                                RoundedCornerShape(10.dp)
-                            )
+                            .border(1.dp, if (isDomino) GoldPrimary else Color.Transparent, RoundedCornerShape(10.dp))
                             .clickable { activeTab = RoyalGameModule.DOMINOES }
-                            .padding(vertical = 10.dp),
+                            .padding(vertical = 8.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "🁢", fontSize = 16.sp)
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(text = "🁫", fontSize = 13.sp)
+                            Spacer(modifier = Modifier.width(3.dp))
                             Text(
-                                text = "الدومينو 3D",
-                                color = if (isDominoSelected) GoldSecondary else TextMuted,
-                                fontSize = 13.sp,
+                                text = "دومينو",
+                                color = if (isDomino) GoldSecondary else TextMuted,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    // Backgammon Tab
+                    val isBg = (activeTab == RoyalGameModule.BACKGAMMON)
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .then(
+                                if (isBg) Modifier.background(Brush.horizontalGradient(listOf(Color(0xFF5A2A12), BoardWoodMedium)))
+                                else Modifier.background(Color.Transparent)
+                            )
+                            .border(1.dp, if (isBg) GoldPrimary else Color.Transparent, RoundedCornerShape(10.dp))
+                            .clickable { activeTab = RoyalGameModule.BACKGAMMON }
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "🎲", fontSize = 13.sp)
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text(
+                                text = "طاولة",
+                                color = if (isBg) GoldSecondary else TextMuted,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -251,21 +267,186 @@ fun UnifiedGameSelectionModal(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 // Active Module Showcase Card
-                if (activeTab == RoyalGameModule.BACKGAMMON) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(1.5.dp, GoldDark, RoundedCornerShape(16.dp)),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = CardDark)
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                when (activeTab) {
+                    RoyalGameModule.CHESS -> {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.5.dp, GoldPrimary, RoundedCornerShape(16.dp)),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = CardDark)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(42.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(Brush.radialGradient(listOf(Color(0xFF512DA8), Color(0xFF311B92))))
+                                            .border(1.dp, GoldPrimary, RoundedCornerShape(10.dp)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(text = "♟️", fontSize = 22.sp)
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column {
+                                        Text(
+                                            text = "CHESS 3D (الشطرنج)",
+                                            color = GoldSecondary,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.ExtraBold
+                                        )
+                                        Text(
+                                            text = "قواعد رسمية كاملة، ذكاء اصطناعي خبير وتحدي أونلاين",
+                                            color = TextMuted,
+                                            fontSize = 10.sp
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                GameModeQuickButtons(
+                                    onOnline = {
+                                        onDismiss()
+                                        onSelectGameMode(RoyalGameModule.CHESS, 0)
+                                        onSelectChess()
+                                    },
+                                    onAI = {
+                                        onDismiss()
+                                        onSelectGameMode(RoyalGameModule.CHESS, 1)
+                                        onSelectChess()
+                                    },
+                                    onPassPlay = {
+                                        onDismiss()
+                                        onSelectGameMode(RoyalGameModule.CHESS, 2)
+                                        onSelectChess()
+                                    },
+                                    onRoom = {
+                                        onDismiss()
+                                        onSelectGameMode(RoyalGameModule.CHESS, 3)
+                                        onSelectChess()
+                                    }
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Button(
+                                    onClick = {
+                                        onDismiss()
+                                        onSelectChess()
+                                    },
+                                    modifier = Modifier.fillMaxWidth().testTag("enter_chess_btn"),
+                                    colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
+                                    shape = RoundedCornerShape(10.dp)
+                                ) {
+                                    Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play Chess", tint = BoardWoodDark, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(text = "دخول الشطرنج (Enter Chess 3D)", color = BoardWoodDark, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold)
+                                }
+                            }
+                        }
+                    }
+
+                    RoyalGameModule.DOMINOES -> {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.5.dp, Color(0xFF2E7D32), RoundedCornerShape(16.dp)),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF0F261C))
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(42.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(Brush.radialGradient(listOf(Color(0xFF388E3C), Color(0xFF1B5E20))))
+                                            .border(1.dp, GoldPrimary, RoundedCornerShape(10.dp)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(text = "🁫", fontSize = 22.sp)
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column {
+                                        Text(
+                                            text = "DOMINO 3D (الدومينو)",
+                                            color = GoldSecondary,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.ExtraBold
+                                        )
+                                        Text(
+                                            text = "أحجار عاجية 3D مع سحب وتراص وحساب النقاط تلقائياً",
+                                            color = TextMuted,
+                                            fontSize = 10.sp
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                GameModeQuickButtons(
+                                    onOnline = {
+                                        onDismiss()
+                                        onSelectGameMode(RoyalGameModule.DOMINOES, 0)
+                                        onSelectDominoes()
+                                    },
+                                    onAI = {
+                                        onDismiss()
+                                        onSelectGameMode(RoyalGameModule.DOMINOES, 1)
+                                        onSelectDominoes()
+                                    },
+                                    onPassPlay = {
+                                        onDismiss()
+                                        onSelectGameMode(RoyalGameModule.DOMINOES, 2)
+                                        onSelectDominoes()
+                                    },
+                                    onRoom = {
+                                        onDismiss()
+                                        onSelectGameMode(RoyalGameModule.DOMINOES, 3)
+                                        onSelectDominoes()
+                                    }
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Button(
+                                    onClick = {
+                                        onDismiss()
+                                        onSelectDominoes()
+                                    },
+                                    modifier = Modifier.fillMaxWidth().testTag("enter_domino_btn"),
+                                    colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
+                                    shape = RoundedCornerShape(10.dp)
+                                ) {
+                                    Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play Dominoes", tint = BoardWoodDark, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(text = "دخول الدومينو (Enter Dominoes)", color = BoardWoodDark, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold)
+                                }
+                            }
+                        }
+                    }
+
+                    RoyalGameModule.BACKGAMMON -> {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.5.dp, GoldDark, RoundedCornerShape(16.dp)),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = CardDark)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     Box(
                                         modifier = Modifier
                                             .size(42.dp)
@@ -279,7 +460,7 @@ fun UnifiedGameSelectionModal(
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Column {
                                         Text(
-                                            text = "BACKGAMMON KING 3D",
+                                            text = "BACKGAMMON 3D (الطاولة)",
                                             color = GoldSecondary,
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.ExtraBold
@@ -291,153 +472,47 @@ fun UnifiedGameSelectionModal(
                                         )
                                     }
                                 }
-                            }
 
-                            Spacer(modifier = Modifier.height(12.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
 
-                            // Modes Grid for Backgammon
-                            GameModeQuickButtons(
-                                onOnline = {
-                                    onDismiss()
-                                    onSelectGameMode(RoyalGameModule.BACKGAMMON, 0)
-                                    onSelectBackgammon()
-                                },
-                                onAI = {
-                                    onDismiss()
-                                    onSelectGameMode(RoyalGameModule.BACKGAMMON, 1)
-                                    onSelectBackgammon()
-                                },
-                                onPassPlay = {
-                                    onDismiss()
-                                    onSelectGameMode(RoyalGameModule.BACKGAMMON, 2)
-                                    onSelectBackgammon()
-                                },
-                                onRoom = {
-                                    onDismiss()
-                                    onSelectGameMode(RoyalGameModule.BACKGAMMON, 3)
-                                    onSelectBackgammon()
-                                }
-                            )
-
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Button(
-                                onClick = {
-                                    onDismiss()
-                                    onSelectBackgammon()
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
-                                shape = RoundedCornerShape(10.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = "Play Backgammon",
-                                    tint = BoardWoodDark,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = "دخول طاولة الزهر (Enter Backgammon)",
-                                    color = BoardWoodDark,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.ExtraBold
-                                )
-                            }
-                        }
-                    }
-                } else {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(1.5.dp, Color(0xFF2E7D32), RoundedCornerShape(16.dp)),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F261C))
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(42.dp)
-                                            .clip(RoundedCornerShape(10.dp))
-                                            .background(Brush.radialGradient(listOf(Color(0xFF388E3C), Color(0xFF1B5E20))))
-                                            .border(1.dp, GoldPrimary, RoundedCornerShape(10.dp)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(text = "🁢", fontSize = 22.sp)
+                                GameModeQuickButtons(
+                                    onOnline = {
+                                        onDismiss()
+                                        onSelectGameMode(RoyalGameModule.BACKGAMMON, 0)
+                                        onSelectBackgammon()
+                                    },
+                                    onAI = {
+                                        onDismiss()
+                                        onSelectGameMode(RoyalGameModule.BACKGAMMON, 1)
+                                        onSelectBackgammon()
+                                    },
+                                    onPassPlay = {
+                                        onDismiss()
+                                        onSelectGameMode(RoyalGameModule.BACKGAMMON, 2)
+                                        onSelectBackgammon()
+                                    },
+                                    onRoom = {
+                                        onDismiss()
+                                        onSelectGameMode(RoyalGameModule.BACKGAMMON, 3)
+                                        onSelectBackgammon()
                                     }
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Column {
-                                        Text(
-                                            text = "DOMINO KING 3D",
-                                            color = GoldSecondary,
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.ExtraBold
-                                        )
-                                        Text(
-                                            text = "الدومينو العاجية الملكية بسحب وتراص ثلاثي الأبعاد",
-                                            color = TextMuted,
-                                            fontSize = 10.sp
-                                        )
-                                    }
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            // Modes Grid for Dominoes
-                            GameModeQuickButtons(
-                                onOnline = {
-                                    onDismiss()
-                                    onSelectGameMode(RoyalGameModule.DOMINOES, 0)
-                                    onSelectDominoes()
-                                },
-                                onAI = {
-                                    onDismiss()
-                                    onSelectGameMode(RoyalGameModule.DOMINOES, 1)
-                                    onSelectDominoes()
-                                },
-                                onPassPlay = {
-                                    onDismiss()
-                                    onSelectGameMode(RoyalGameModule.DOMINOES, 2)
-                                    onSelectDominoes()
-                                },
-                                onRoom = {
-                                    onDismiss()
-                                    onSelectGameMode(RoyalGameModule.DOMINOES, 3)
-                                    onSelectDominoes()
-                                }
-                            )
-
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Button(
-                                onClick = {
-                                    onDismiss()
-                                    onSelectDominoes()
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
-                                shape = RoundedCornerShape(10.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = "Play Dominoes",
-                                    tint = BoardWoodDark,
-                                    modifier = Modifier.size(18.dp)
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = "دخول طاولة الدومينو (Enter Dominoes)",
-                                    color = BoardWoodDark,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.ExtraBold
-                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Button(
+                                    onClick = {
+                                        onDismiss()
+                                        onSelectBackgammon()
+                                    },
+                                    modifier = Modifier.fillMaxWidth().testTag("enter_backgammon_btn"),
+                                    colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
+                                    shape = RoundedCornerShape(10.dp)
+                                ) {
+                                    Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play Backgammon", tint = BoardWoodDark, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(text = "دخول طاولة الزهر (Enter Backgammon)", color = BoardWoodDark, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold)
+                                }
                             }
                         }
                     }
@@ -470,12 +545,7 @@ private fun GameModeQuickButtons(
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    imageVector = Icons.Default.Public,
-                    contentDescription = "Online",
-                    tint = GoldSecondary,
-                    modifier = Modifier.size(16.dp)
-                )
+                Icon(imageVector = Icons.Default.Public, contentDescription = "Online", tint = GoldSecondary, modifier = Modifier.size(16.dp))
                 Text(text = "أونلاين", color = TextPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
             }
         }
@@ -492,12 +562,7 @@ private fun GameModeQuickButtons(
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    imageVector = Icons.Default.SmartToy,
-                    contentDescription = "AI",
-                    tint = GoldSecondary,
-                    modifier = Modifier.size(16.dp)
-                )
+                Icon(imageVector = Icons.Default.SmartToy, contentDescription = "AI", tint = GoldSecondary, modifier = Modifier.size(16.dp))
                 Text(text = "الذكاء", color = TextPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
             }
         }
@@ -514,12 +579,7 @@ private fun GameModeQuickButtons(
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    imageVector = Icons.Default.Group,
-                    contentDescription = "2 Players",
-                    tint = GoldSecondary,
-                    modifier = Modifier.size(16.dp)
-                )
+                Icon(imageVector = Icons.Default.Group, contentDescription = "2 Players", tint = GoldSecondary, modifier = Modifier.size(16.dp))
                 Text(text = "لاعبان", color = TextPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
             }
         }
@@ -536,12 +596,7 @@ private fun GameModeQuickButtons(
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    imageVector = Icons.Default.MeetingRoom,
-                    contentDescription = "Room",
-                    tint = GoldSecondary,
-                    modifier = Modifier.size(16.dp)
-                )
+                Icon(imageVector = Icons.Default.MeetingRoom, contentDescription = "Room", tint = GoldSecondary, modifier = Modifier.size(16.dp))
                 Text(text = "غرفة", color = TextPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
             }
         }

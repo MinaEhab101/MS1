@@ -16,6 +16,8 @@ import com.example.audio.MusicManager
 import com.example.audio.SoundManager
 import com.example.firebase.AuthRepository
 import com.example.firebase.FirestoreRepository
+import com.example.chess.ui.ChessScreen
+import com.example.chess.viewmodel.ChessViewModel
 import com.example.domino.ui.DominoScreen
 import com.example.domino.viewmodel.DominoViewModel
 import com.example.game.GameMode
@@ -27,6 +29,7 @@ import com.example.ui.screens.leaderboard.LeaderboardScreen
 import com.example.ui.screens.login.LoginScreen
 import com.example.ui.screens.profile.ProfileScreen
 import com.example.ui.screens.settings.SettingsScreen
+import com.example.ui.screens.shop.AppearanceShopScreen
 import com.example.ui.screens.splash.SplashScreen
 
 /**
@@ -82,6 +85,9 @@ fun AppNavigation(
                     activeGameMode = mode
                     navController.navigate(Routes.GAME)
                 },
+                onNavigateToChess = {
+                    navController.navigate(Routes.CHESS)
+                },
                 onNavigateToDomino = {
                     navController.navigate(Routes.DOMINO)
                 },
@@ -89,7 +95,25 @@ fun AppNavigation(
                 onNavigateToLeaderboard = { navController.navigate(Routes.LEADERBOARD) },
                 onNavigateToFriends = { navController.navigate(Routes.FRIENDS) },
                 onNavigateToSettings = { navController.navigate(Routes.SETTINGS) },
+                onNavigateToShop = { navController.navigate(Routes.SHOP) },
                 soundManager = soundManager
+            )
+        }
+
+        composable(Routes.CHESS) {
+            val chessViewModel = remember {
+                ChessViewModel(
+                    soundManager = soundManager,
+                    authRepository = authRepository,
+                    firestoreRepository = firestoreRepository
+                )
+            }
+
+            ChessScreen(
+                viewModel = chessViewModel,
+                userProfile = currentUser,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToLeaderboard = { navController.navigate(Routes.LEADERBOARD) }
             )
         }
 
@@ -173,11 +197,22 @@ fun AppNavigation(
                 musicManager = musicManager,
                 authRepository = authRepository,
                 onNavigateBack = { navController.popBackStack() },
+                onNavigateToShop = { navController.navigate(Routes.SHOP) },
                 onLogout = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.HOME) { inclusive = true }
                     }
                 }
+            )
+        }
+
+        composable(Routes.SHOP) {
+            AppearanceShopScreen(
+                userProfile = currentUser,
+                authRepository = authRepository,
+                firestoreRepository = firestoreRepository,
+                soundManager = soundManager,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

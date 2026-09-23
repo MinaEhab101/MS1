@@ -189,6 +189,52 @@ class SoundManager(private val context: Context) {
         playMovePiece()
     }
 
+    fun playChessMove() {
+        triggerHaptic(25)
+        playTone(durationMs = 120) { i, total ->
+            val t = i.toDouble() / total
+            val freq = 480.0 - (t * 180.0)
+            val env = exp(-t * 16.0)
+            ((sin(2.0 * PI * freq * (i / 22050.0)) * 24000) * env).toInt().toShort()
+        }
+    }
+
+    fun playChessCapture() {
+        triggerHaptic(60)
+        playTone(durationMs = 180) { i, total ->
+            val t = i.toDouble() / total
+            val noise = (Random.nextDouble() * 2.0 - 1.0)
+            val freq = 220.0 - (t * 80.0)
+            val env = exp(-t * 10.0)
+            (((sin(2.0 * PI * freq * (i / 22050.0)) * 20000) + (noise * 12000)) * env).toInt().toShort()
+        }
+    }
+
+    fun playChessCheck() {
+        triggerHaptic(90)
+        scope.launch {
+            val notes = listOf(587.33, 739.99) // D5, F#5 sharp alert
+            for (freq in notes) {
+                playTone(durationMs = 140) { i, total ->
+                    val t = i.toDouble() / total
+                    val env = (1.0 - t)
+                    (sin(2.0 * PI * freq * (i / 22050.0)) * env * 22000).toInt().toShort()
+                }
+                kotlinx.coroutines.delay(100)
+            }
+        }
+    }
+
+    fun playDominoPlace() {
+        triggerHaptic(30)
+        playTone(durationMs = 110) { i, total ->
+            val t = i.toDouble() / total
+            val freq = 520.0 - (t * 220.0)
+            val env = exp(-t * 18.0)
+            (sin(2.0 * PI * freq * (i / 22050.0)) * env * 26000).toInt().toShort()
+        }
+    }
+
     fun playVictory() {
         playWin()
     }

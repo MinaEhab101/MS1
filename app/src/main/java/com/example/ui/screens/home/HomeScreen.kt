@@ -99,11 +99,13 @@ fun HomeScreen(
     profile: UserProfile?,
     firestoreRepository: FirestoreRepository,
     onStartGame: (GameMode) -> Unit,
+    onNavigateToChess: () -> Unit,
     onNavigateToDomino: () -> Unit,
     onNavigateToProfile: () -> Unit,
     onNavigateToLeaderboard: () -> Unit,
     onNavigateToFriends: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToShop: () -> Unit = {},
     soundManager: SoundManager? = null
 ) {
     val context = LocalContext.current
@@ -140,11 +142,12 @@ fun HomeScreen(
 
     UnifiedGameSelectionModal(
         isOpen = showUnifiedGameModal,
-        currentModule = RoyalGameModule.BACKGAMMON,
+        currentModule = RoyalGameModule.CHESS,
         userProfile = profile,
         onDismiss = { showUnifiedGameModal = false },
-        onSelectBackgammon = { /* Already in Backgammon */ },
-        onSelectDominoes = { onNavigateToDomino() }
+        onSelectChess = { onNavigateToChess() },
+        onSelectDominoes = { onNavigateToDomino() },
+        onSelectBackgammon = { /* Already on home */ }
     )
 
     RoyalDailyRewardDialog(
@@ -228,13 +231,15 @@ fun HomeScreen(
             // Coins & Settings
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Row(
                     modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
                         .background(BoardWoodDark, RoundedCornerShape(16.dp))
                         .border(1.dp, GoldDark, RoundedCornerShape(16.dp))
-                        .padding(horizontal = 10.dp, vertical = 5.dp),
+                        .clickable { onNavigateToShop() }
+                        .padding(horizontal = 9.dp, vertical = 5.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -250,6 +255,20 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp
                     )
+                }
+
+                // Shop Button
+                Box(
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(BoardWoodDark)
+                        .border(1.dp, GoldDark, RoundedCornerShape(8.dp))
+                        .clickable { onNavigateToShop() }
+                        .testTag("home_shop_button"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "🎨", fontSize = 16.sp)
                 }
 
                 // Game Switcher (Backgammon / Dominoes)
@@ -336,27 +355,29 @@ fun HomeScreen(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.backgammon_king_logo),
-                            contentDescription = "Backgammon King Crest",
+                            contentDescription = "Royal Board Crest",
                             modifier = Modifier.size(66.dp).clip(CircleShape)
                         )
                     }
 
                     Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "ROYAL BOARD 3D",
+                                fontSize = 19.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = GoldSecondary,
+                                letterSpacing = 1.2.sp
+                            )
+                        }
                         Text(
-                            text = "BACKGAMMON KING",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = GoldSecondary,
-                            letterSpacing = 1.5.sp
-                        )
-                        Text(
-                            text = "Royal 3D Backgammon Experience",
+                            text = "Chess • Domino • Backgammon",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = GoldPrimary
                         )
                         Text(
-                            text = "طاولة الزهر الملكية ثلاثية الأبعاد",
+                            text = "ألعاب الطاولة اللوحية الملكية ثلاثية الأبعاد",
                             fontSize = 11.sp,
                             color = TextMuted
                         )
@@ -442,6 +463,169 @@ fun HomeScreen(
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
+                    }
+                }
+            }
+
+            // 3D ROYAL CHESS GAME CARD
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        2.dp,
+                        Brush.horizontalGradient(listOf(Color(0xFF512DA8), GoldPrimary, Color(0xFF311B92))),
+                        RoundedCornerShape(20.dp)
+                    )
+                    .testTag("mode_chess_card"),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1735))
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigateToChess() },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Brush.radialGradient(listOf(Color(0xFF7E57C2), Color(0xFF311B92))))
+                                    .border(1.5.dp, GoldPrimary, RoundedCornerShape(12.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = "♟️", fontSize = 28.sp)
+                            }
+
+                            Column {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "CHESS KING 3D",
+                                        color = GoldSecondary,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        letterSpacing = 1.sp
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(GoldPrimary)
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    ) {
+                                        Text(
+                                            text = "FIDE",
+                                            color = BoardWoodDark,
+                                            fontSize = 9.sp,
+                                            fontWeight = FontWeight.ExtraBold
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = "لعبة الشطرنج الملكية ثلاثية الأبعاد",
+                                    color = TextPrimary,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "ذكاء اصطناعي 4 مستويات • أونلاين • لاعبين • غرف خاصة",
+                                    color = TextMuted,
+                                    fontSize = 10.sp
+                                )
+                            }
+                        }
+
+                        Button(
+                            onClick = { onNavigateToChess() },
+                            colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier.testTag("play_chess_button")
+                        ) {
+                            Text(
+                                text = "PLAY",
+                                color = BoardWoodDark,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Chess Quick Mode Chips (Online, AI, 2 Players, Room)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(CardDark.copy(alpha = 0.7f))
+                                .border(1.dp, GoldDark, RoundedCornerShape(10.dp))
+                                .clickable { onNavigateToChess() }
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(text = "🌐", fontSize = 14.sp)
+                                Text(text = "أونلاين", color = GoldSecondary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(CardDark.copy(alpha = 0.7f))
+                                .border(1.dp, GoldDark, RoundedCornerShape(10.dp))
+                                .clickable { onNavigateToChess() }
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(text = "🤖", fontSize = 14.sp)
+                                Text(text = "ضد الذكاء", color = GoldSecondary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(CardDark.copy(alpha = 0.7f))
+                                .border(1.dp, GoldDark, RoundedCornerShape(10.dp))
+                                .clickable { onNavigateToChess() }
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(text = "👥", fontSize = 14.sp)
+                                Text(text = "لاعبان", color = GoldSecondary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(CardDark.copy(alpha = 0.7f))
+                                .border(1.dp, GoldDark, RoundedCornerShape(10.dp))
+                                .clickable { onNavigateToChess() }
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(text = "🔑", fontSize = 14.sp)
+                                Text(text = "غرفة", color = GoldSecondary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
                     }
                 }
             }

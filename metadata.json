@@ -1,6 +1,6 @@
 {
-  "name": "Backgammon King",
-  "description": "Royal 3D Backgammon Experience featuring realistic 3D board, physics dice, AI, Online Multiplayer, Private Rooms, and Leaderboard.",
+  "name": "Royal Board 3D",
+  "description": "Professional 3D Board Games Suite: Chess, Domino, and Backgammon with AI, Pass & Play, Online Multiplayer, and Leaderboards.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

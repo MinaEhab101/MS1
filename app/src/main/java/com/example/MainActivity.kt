@@ -31,6 +31,7 @@ class MainActivity : ComponentActivity() {
         musicManager = MusicManager(this)
         authRepository = AuthRepository(this)
         firestoreRepository = FirestoreRepository(this)
+        authRepository.setFirestoreRepository(firestoreRepository)
 
         com.example.game.GraphicsSettings.initialize(this)
         AdManager.initialize(this)

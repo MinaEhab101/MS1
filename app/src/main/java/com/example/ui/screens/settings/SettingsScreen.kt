@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -59,6 +60,7 @@ import com.example.audio.SoundManager
 import com.example.firebase.AuthRepository
 import com.example.ui.theme.AccentRed
 import com.example.ui.theme.BoardWoodDark
+import com.example.ui.theme.BoardWoodMedium
 import com.example.ui.theme.CardBorder
 import com.example.ui.theme.CardDark
 import com.example.ui.theme.GoldDark
@@ -76,12 +78,14 @@ fun SettingsScreen(
     musicManager: MusicManager,
     authRepository: AuthRepository,
     onNavigateBack: () -> Unit,
+    onNavigateToShop: () -> Unit = {},
     onLogout: () -> Unit
 ) {
     var sfxVol by remember { mutableFloatStateOf(soundManager.sfxVolume) }
     var musicVol by remember { mutableFloatStateOf(musicManager.musicVolume) }
     var vibrationEnabled by remember { mutableStateOf(soundManager.isVibrationEnabled) }
     var adsEnabled by remember { mutableStateOf(AdManager.isAdsEnabled) }
+    val currentUser by authRepository.currentUser.collectAsState()
 
     Scaffold(
         topBar = {
@@ -271,6 +275,60 @@ fun SettingsScreen(
                 }
             }
 
+            // Customization & Shop Card
+            Text(
+                text = "CUSTOMIZATION & SKINS",
+                color = GoldPrimary,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.5.sp
+            )
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onNavigateToShop() }
+                    .border(1.dp, GoldDark, RoundedCornerShape(16.dp)),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = CardDark)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(text = "🎨", fontSize = 28.sp)
+                        Column {
+                            Text(
+                                text = "Royal Appearance Shop",
+                                color = GoldSecondary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            )
+                            Text(
+                                text = "Boards, Piece Skins & Custom 3D Materials",
+                                color = TextMuted,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+
+                    Button(
+                        onClick = onNavigateToShop,
+                        colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary, contentColor = BoardWoodDark),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text("OPEN", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
             Text(
                 text = "GAMEPLAY & PREFERENCES",
                 color = GoldPrimary,
@@ -309,6 +367,100 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Account & Cloud Sync Card
+            Text(
+                text = "ACCOUNT & CLOUD PROFILE",
+                color = GoldPrimary,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.5.sp
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = CardDark),
+                border = CardDefaults.outlinedCardBorder().copy(brush = Brush.linearGradient(listOf(CardBorder, GoldDark)))
+            ) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    val user = currentUser
+                    val avatars = listOf("👑", "🦁", "🦅", "⚔️", "🎲", "🧙‍♂️", "💎", "🐉")
+                    val avatarEmoji = avatars.getOrElse(user?.avatarIndex ?: 0) { "👑" }
+                    val authTypeLabel = when (user?.authProvider) {
+                        "google" -> "Google Account"
+                        "email" -> "Verified Email"
+                        else -> "Guest Account"
+                    }
+                    val badgeColor = when (user?.authProvider) {
+                        "google" -> Color(0xFF4285F4)
+                        "email" -> GoldPrimary
+                        else -> TextMuted
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(BoardWoodMedium)
+                                .border(1.5.dp, GoldPrimary, RoundedCornerShape(12.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = avatarEmoji, fontSize = 24.sp)
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = user?.username ?: "Guest Player",
+                                color = TextPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                            if (!user?.email.isNullOrBlank() && user?.authProvider != "guest") {
+                                Text(
+                                    text = user?.email ?: "",
+                                    color = TextSecondary,
+                                    fontSize = 12.sp
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.padding(top = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(badgeColor.copy(alpha = 0.2f))
+                                        .border(1.dp, badgeColor, RoundedCornerShape(6.dp))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = authTypeLabel,
+                                        color = badgeColor,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Rating: ${user?.rating ?: 1200} • 🪙 ${user?.coins ?: 1000}",
+                                    color = GoldSecondary,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             // Logout Button
             Button(
                 onClick = {
@@ -330,7 +482,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Backgammon King v1.0.0 (Royal 3D Edition)\nBuilt with Kotlin & Jetpack Compose",
+                text = "Royal Board 3D • Chess • Domino • Backgammon\nBuilt with Kotlin & Jetpack Compose Native 3D",
                 color = TextMuted,
                 fontSize = 11.sp,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
